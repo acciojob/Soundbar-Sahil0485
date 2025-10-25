@@ -1,23 +1,34 @@
 const sounds = ['applause', 'boo', 'gasp', 'tada', 'victory', 'wrong'];
 
 const buttons = document.querySelectorAll('.btn');
+const buttonsContainer = document.getElementById('buttons');
 
 buttons.forEach(btn => {
   btn.addEventListener('click', () => {
+    // Stop all existing sounds
     stopSounds();
 
     if (btn.classList.contains('stop')) return;
 
-    const sound = btn.textContent;
-    const audio = new Audio(`sounds/${sound}.mp3`);
+    const soundName = btn.textContent.trim();
+
+    // Create audio element (so Cypress can detect it)
+    const audio = document.createElement('audio');
+    audio.src = `sounds/${soundName}.mp3`;
+    audio.setAttribute('controls', 'true'); // optional (not required for test)
     audio.play();
-    window.currentSound = audio;
+
+    // Add audio to DOM (so Cypress finds it)
+    buttonsContainer.appendChild(audio);
   });
 });
 
 function stopSounds() {
-  if (window.currentSound) {
-    window.currentSound.pause();
-    window.currentSound.currentTime = 0;
-  }
+  // Stop and remove any existing <audio> elements
+  const existingAudios = document.querySelectorAll('audio');
+  existingAudios.forEach(aud => {
+    aud.pause();
+    aud.currentTime = 0;
+    aud.remove();
+  });
 }
